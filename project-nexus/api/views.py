@@ -12,7 +12,7 @@ from notifications.models import Notification
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .schema import *
-
+from datetime import timezone
 User = get_user_model()
 
 class UserViewSet(ReadOnlyModelViewSet):
@@ -179,3 +179,49 @@ class CustomTokenRefreshView(TokenRefreshView):
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
+    
+# api/views.py - Add this view
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.db import connections
+from django.db.utils import OperationalError
+
+
+# api/views.py
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.db import connections
+from django.db.utils import OperationalError
+from django.core.cache import cache
+import datetime
+import redis
+
+@api_view(['GET'])
+def health_check(request):
+    """
+    Comprehensive health check endpoint
+    """
+    # Database check
+    try:
+        db_conn = connections['default']
+        db_conn.cursor()
+        db_status = "connected"
+    except OperationalError:
+        db_status = "disconnected"
+
+    # Cache check
+    try:
+        cache.set('health_check', 'test', 1)
+        cache_status = "connected"
+    except redis.ConnectionError:
+        cache_status = "disconnected"
+
+    return Response({
+        "status": "healthy",
+        "timestamp": datetime.datetime.now().isoformat(),
+        "services": {
+            "database": db_status,
+            "cache": cache_status,
+        },
+        "version": "1.0.0"
+    })

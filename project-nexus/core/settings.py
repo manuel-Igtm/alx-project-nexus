@@ -91,7 +91,7 @@ DATABASES = {
         'NAME': 'ecommerceplatform_db',
         'USER': 'ecommerce_user',
         'PASSWORD': 'manueligtm12!',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }

@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 from django.urls import path
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from .views import health_check
 
 router = DefaultRouter()
 
@@ -32,6 +33,7 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0)),
     path('auth/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
+    path('health/', health_check, name='health-check'),
 ] 
 
 urlpatterns +=  router.urls
