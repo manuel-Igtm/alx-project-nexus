@@ -62,3 +62,46 @@ venv/
 # Database migrations (keep these)
 # !*/migrations/
 # !*/migrations/__init__.py
+
+# .dockerignore
+.git
+.gitignore
+README.md
+.env
+.venv
+venv/
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis
+.pytest_cache
+instance
+.webassets-cache
+.scrapy
+docs/_build
+target
+.ipynb_checkpoints
+.python-version
+celerybeat-schedule
+*.sage.py
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.idea
+.DS_Store
