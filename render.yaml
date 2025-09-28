@@ -70,7 +70,7 @@ databases:
     databaseName: ecommerceplatform_db
     user: ecommerce_user
 
-redis:
+services:
   - name: ecommerce-redis
+    type: redis
     plan: free
-    ipAllowList: []  # Only allow internal connections
