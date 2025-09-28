@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'rest_framework_simplejwt',
+    'whiteniose',
     'corsheaders',
     'graphene_django',
     'drf_yasg',
@@ -248,3 +249,56 @@ CELERY_TIMEZONE = 'UTC'
 # For environment variables
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+
+
+# core/settings.py
+import os
+from pathlib import Path
+import dj_database_url
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Security
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-here')
+ALLOWED_HOSTS = ['your-app-name.onrender.com', 'localhost', '127.0.0.1']
+
+# Database - Render provides PostgreSQL
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
+
+# Static files
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Media files (you'll need cloud storage like AWS S3 for production)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+
+# Redis for caching and Celery
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# Celery configuration
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+
+# Security headers
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
