@@ -18,6 +18,7 @@ services:
           property: connectionString
       - key: REDIS_URL
         fromService:
+          type: redis
           name: ecommerce-redis
           property: connectionString
       - key: DEBUG
@@ -41,6 +42,7 @@ services:
           property: connectionString
       - key: REDIS_URL
         fromService:
+          type: redis
           name: ecommerce-redis
           property: connectionString
 
@@ -58,6 +60,7 @@ services:
           property: connectionString
       - key: REDIS_URL
         fromService:
+          type: redis
           name: ecommerce-redis
           property: connectionString
 
@@ -65,6 +68,9 @@ services:
   - type: redis
     name: ecommerce-redis
     plan: free
+    ipAllowList:        # 👈 Required, even for free tier
+      - source: 0.0.0.0/0
+        description: Allow all
 
 # Database
 databases:
