@@ -4,7 +4,9 @@ from .serializers import UserSerializer,ProductSerializer,CategorySerializer,Ord
 from products.models import Product,Category
 from orders.models import   Order,Cart
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from payments.models import Payment
 from notifications.models import Notification
 
@@ -27,6 +29,12 @@ class OrderViewSet(ModelViewSet):
     queryset =  Order.objects.all()
     serializer_class = OrderSerializer
 
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
 
 # ---------------- CART ----------------
 class CartViewSet(ModelViewSet):
@@ -45,9 +53,13 @@ class OrderItemViewSet(ModelViewSet):
     serializer_class = OrderItemSerializer
 
 
-class PaymentViewSet(ModelViewSet):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
+class PaymentViewSet(viewsets.ViewSet):
+    @action(detail=False, methods=['post'])
+    def create_payment_intent(self, request):
+        # Basic payment intent creation
+        order_id = request.data.get('order_id')
+        # Integrate with payment provider
+        return Response({"client_secret": "test_secret"})
 
 class NotificationViewSet(ModelViewSet):
     queryset = Notification.objects.all().order_by("-created_at")

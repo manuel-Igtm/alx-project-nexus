@@ -2,6 +2,12 @@ from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Product, Category
 from .serializers import ProductListSerializer, ProductDetailSerializer, CategorySerializer
+from django.core.cache import cache
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from core.cache_utils import cache_result, CacheManager
+
+
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Product.objects.filter(active=True).prefetch_related("variants", "category")
@@ -14,6 +20,51 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == "list":
             return ProductListSerializer
         return ProductDetailSerializer
+    
+    @cache_result(ttl=600, key_prefix='products_list')
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    def retrieve(self, request, *args, **kwargs):
+        product_id = kwargs.get('pk')
+        
+        # Try to get from cache first
+        cached_product = CacheManager.get_cached_product(product_id)
+        if cached_product:
+            return Response(cached_product)
+        
+        # If not in cache, get from database and cache it
+        response = super().retrieve(request, *args, **kwargs)
+        CacheManager.cache_product(response.data)
+        
+        return response
+    
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        # Invalidate relevant caches
+        CacheManager.invalidate_product_cache(instance.id)
+    
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        # Invalidate relevant caches
+        CacheManager.invalidate_product_cache(instance.id)
+    
+    @action(detail=False, methods=['get'])
+    def featured(self, request):
+        """Get featured products with caching"""
+        cache_key = CacheManager.get_featured_products_key()
+        featured_products = cache.get(cache_key)
+        
+        if not featured_products:
+            featured_products = self.queryset.filter(
+                is_featured=True, 
+                is_active=True
+            )[:10]
+            serializer = self.get_serializer(featured_products, many=True)
+            featured_products = serializer.data
+            cache.set(cache_key, featured_products, 3600)  # Cache for 1 hour
+        
+        return Response(featured_products)
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
