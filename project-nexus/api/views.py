@@ -9,6 +9,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from payments.models import Payment
 from notifications.models import Notification
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from .schema import *
 
 User = get_user_model()
 
@@ -20,6 +23,46 @@ class UserViewSet(ReadOnlyModelViewSet):
 class ProductViewSet(ModelViewSet):
     queryset =  Product.objects.all()
     serializer_class = ProductSerializer
+
+    @swagger_auto_schema(
+        operation_description="Retrieve a list of all products with optional filtering",
+        manual_parameters=[
+            openapi.Parameter('category', openapi.IN_QUERY, description="Filter by category ID", type=openapi.TYPE_INTEGER),
+            openapi.Parameter('featured', openapi.IN_QUERY, description="Filter featured products", type=openapi.TYPE_BOOLEAN),
+            openapi.Parameter('min_price', openapi.IN_QUERY, description="Minimum price filter", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('max_price', openapi.IN_QUERY, description="Maximum price filter", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('search', openapi.IN_QUERY, description="Search in product names and descriptions", type=openapi.TYPE_STRING),
+        ],
+        responses={
+            200: openapi.Response('List of products', product_response_schema),
+            400: openapi.Response('Bad request', error_response_schema),
+        }
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Retrieve specific product details",
+        responses={
+            200: openapi.Response('Product details', product_response_schema),
+            404: openapi.Response('Product not found', error_response_schema),
+        }
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+        operation_description="Create a new product (Admin only)",
+        request_body=product_create_schema,
+        responses={
+            201: openapi.Response('Product created', product_response_schema),
+            400: openapi.Response('Validation error', error_response_schema),
+            401: openapi.Response('Authentication required', error_response_schema),
+            403: openapi.Response('Admin permission required', error_response_schema),
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
 class CategoryViewSet(ModelViewSet):
     queryset =  Category.objects.all()
@@ -34,6 +77,18 @@ class OrderViewSet(ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    @swagger_auto_schema(
+        operation_description="Create a new order",
+        request_body=order_create_schema,
+        responses={
+            201: openapi.Response('Order created successfully'),
+            400: openapi.Response('Invalid order data'),
+            401: openapi.Response('Authentication required'),
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
 
 # ---------------- CART ----------------
@@ -64,3 +119,63 @@ class PaymentViewSet(viewsets.ViewSet):
 class NotificationViewSet(ModelViewSet):
     queryset = Notification.objects.all().order_by("-created_at")
     serializer_class = NotificationSerializer
+
+
+# api/views.py - Add authentication documentation
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    @swagger_auto_schema(
+        operation_description="Obtain JWT token pair (access + refresh)",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['email', 'password'],
+            properties={
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='User email'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='User password'),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                'Token pair obtained',
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'access': openapi.Schema(type=openapi.TYPE_STRING),
+                        'refresh': openapi.Schema(type=openapi.TYPE_STRING),
+                    }
+                )
+            ),
+            401: openapi.Response('Invalid credentials'),
+        }
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+class CustomTokenRefreshView(TokenRefreshView):
+    @swagger_auto_schema(
+        operation_description="Refresh access token using refresh token",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['refresh'],
+            properties={
+                'refresh': openapi.Schema(type=openapi.TYPE_STRING, description='Refresh token'),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                'New access token',
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'access': openapi.Schema(type=openapi.TYPE_STRING),
+                    }
+                )
+            ),
+            401: openapi.Response('Invalid refresh token'),
+        }
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
