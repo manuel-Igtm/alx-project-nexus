@@ -27,6 +27,9 @@ services:
         generateValue: true
       - key: WEB_CONCURRENCY
         value: 4
+    name: ecommerce-redis
+    type: redis
+    plan: free
 
   # Celery Worker
   - type: worker
@@ -70,7 +73,3 @@ databases:
     databaseName: ecommerceplatform_db
     user: ecommerce_user
 
-services:
-  - name: ecommerce-redis
-    type: redis
-    plan: free
