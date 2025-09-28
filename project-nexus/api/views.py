@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from django.contrib.auth import get_user_model
-from .serializers import UserSerializer,ProductSerializer,CategorySerializer,OrderSerializer,OrderItemSerializer,CartItemSerializer,OrderItem,CartItem,CartSerializer,PaymentSerializer,SearchQuerySerializer,ShippingSerializer,DiscountSerializer,NotificationSerializer
+from .serializers import UserSerializer,ProductSerializer,CategorySerializer,OrderSerializer,OrderItemSerializer,CartItemSerializer,OrderItem,CartItem,CartSerializer,PaymentSerializer,NotificationSerializer
 from products.models import Product,Category
 from orders.models import   Order,Cart
 from rest_framework.permissions import IsAuthenticated

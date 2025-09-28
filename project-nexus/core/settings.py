@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'graphene_django',
     'orders',
     'notifications',
     'payments',
@@ -177,11 +178,13 @@ SESSION_CACHE_ALIAS = "default"
 
 
 GRAPHENE = {
-    "SCHEMA": "ecommerce.schema.schema" , # path to root schema
+    "SCHEMA": "core.schema.schema" , # path to root schema
     "MIDDLEWARE": [
         "graphql_jwt.middleware.JSONWebTokenMiddleware",
-        # optionally, other middlewares
+        "core.graphql_middleware.GraphQLAuthMiddleware",
     ],
+    "RELAY_CONNECTION_MAX_LIMIT": 100,
+        # optionally, other middlewares
 }
 
 # Make django-graphql-jwt the authentication backend for GraphQL
@@ -190,9 +193,14 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",  # keep default for admin/login
 ]
 
-# Optionally, configure JWT settings
+
+# JWT configuration
 GRAPHQL_JWT = {
+    "JWT_VERIFY_EXPIRATION": True,
+    "JWT_EXPIRATION_DELTA": timedelta(days=7),
+    "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=30),
+    "JWT_SECRET_KEY": SECRET_KEY,
+    "JWT_ALGORITHM": "HS256",
     "JWT_ALLOW_REFRESH": True,
-    "JWT_LONG_RUNNING_REFRESH_TOKEN": False,
-    # "JWT_EXPIRATION_DELTA": datetime.timedelta(minutes=5),
+    "JWT_AUTH_HEADER_PREFIX": "Bearer",
 }
