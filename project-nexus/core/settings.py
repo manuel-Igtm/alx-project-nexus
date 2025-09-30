@@ -87,17 +87,17 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerceplatform_db',
-        'USER': 'ecommerce_user',
-        'PASSWORD': 'manueligtm12!',
-        'HOST': 'db',
-        'PORT': '5432',
-    }
-}
+import dj_database_url
+import os
 
+# Database
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
 
 
 
