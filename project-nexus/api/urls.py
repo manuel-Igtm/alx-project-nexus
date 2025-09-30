@@ -28,7 +28,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('api/register/', views.UserRegistrationView.as_view(), name='user-register'),
+    path('register/', views.UserRegistrationView.as_view(), name='user-register'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0)),
