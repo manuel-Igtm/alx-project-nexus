@@ -43,3 +43,8 @@ urlpatterns = [
     path('', schema_view.with_ui('swagger', cache_timeout=0)),  # Root redirects to Swagger
 
 ]
+
+from django.http import JsonResponse
+
+def root(request):
+    return JsonResponse({"message": "Ecommerce API is running"})
