@@ -32,6 +32,21 @@ CSRF_TRUSTED_ORIGINS = [
     'https://ecommerce-backend-33uc.onrender.com',
     'https://*.onrender.com',
 ]
+
+# Add detailed logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
 import os
 
 # Render uses PORT environment variable
