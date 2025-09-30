@@ -51,8 +51,8 @@ services:
     name: celery-beat
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: celery -A core beat --loglevel=info
+    buildCommand: cd project-nexus && python manage.py collectstatic --noinput
+    startCommand: cd project-nexus && gunicorn project-nexus.wsgi:application
     envVars:
       - key: DATABASE_URL
         fromDatabase:
