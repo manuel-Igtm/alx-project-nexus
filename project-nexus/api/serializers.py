@@ -106,5 +106,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         return data
 
+# In your serializers.py section - REPLACE the current CustomTokenObtainPairSerializer
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = 'email'  # Use email as username field
+    username_field = 'email'  # This tells JWT to use email as username
+    
+    def validate(self, attrs):
+        # The parent class will now automatically use 'email' instead of 'username'
+        return super().validate(attrs)
