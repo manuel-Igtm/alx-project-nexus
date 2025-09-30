@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from .views import (UserViewSet,ProductViewSet,  CategoryViewSet,OrderViewSet,CartViewSet,OrderItemViewSet,CartItemViewSet,PaymentViewSet,NotificationViewSet,CustomTokenObtainPairView, CustomTokenRefreshView
-)
+,UserRegistrationView)
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 from django.urls import path
 from drf_yasg.views import get_schema_view
