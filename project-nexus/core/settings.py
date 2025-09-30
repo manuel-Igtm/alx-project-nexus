@@ -26,8 +26,11 @@ SECRET_KEY = 'django-insecure-hs01#qybaq1k4!yna+_t7zkb=ep8=271s1@w+3^j1w_w)=*pnm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['ecommerce-backend-33uc.onrender.com',]
+# Add the Render internal hostname
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
