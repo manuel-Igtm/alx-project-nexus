@@ -1,5 +1,5 @@
 from rest_framework.routers import DefaultRouter
-from .views import (UserViewSet,ProductViewSet,  CategoryViewSet,OrderViewSet,CartViewSet,OrderItemViewSet,CartItemViewSet,PaymentViewSet,NotificationViewSet,CustomTokenObtainPairView, CustomTokenRefreshView
+from .views import (UserViewSet,ProductViewSet,  CategoryViewSet,OrderViewSet,CartViewSet,OrderItemViewSet,CartItemViewSet,PaymentViewSet,NotificationViewSet
 ,UserRegistrationView)
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 from django.urls import path
