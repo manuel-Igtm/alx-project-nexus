@@ -32,7 +32,10 @@ CSRF_TRUSTED_ORIGINS = [
     'https://ecommerce-backend-33uc.onrender.com',
     'https://*.onrender.com',
 ]
+import os
 
+# Render uses PORT environment variable
+PORT = os.environ.get('PORT', '10000')
 CORS_ALLOWED_ORIGINS = [
     "https://ecommerce-backend-33uc.onrender.com",
     "http://localhost:3000",
