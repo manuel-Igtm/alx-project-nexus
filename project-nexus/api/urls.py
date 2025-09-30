@@ -32,8 +32,8 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0)),
-    path('auth/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('auth/token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
+    # path('auth/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('auth/token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
     path('health/', health_check, name='health-check'),
 ] 
 
