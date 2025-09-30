@@ -144,66 +144,6 @@ class NotificationViewSet(ModelViewSet):
     serializer_class = NotificationSerializer
 
 
-# api/views.py - Add authentication documentation
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
-
-class CustomTokenObtainPairView(TokenObtainPairView):
-    permission_classes = []  # No permissions required
-    authentication_classes = []  # No authentication required
-    @swagger_auto_schema(
-        operation_description="Obtain JWT token pair (access + refresh)",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            required=['email', 'password'],
-            properties={
-                'email': openapi.Schema(type=openapi.TYPE_STRING, description='User email'),
-                'password': openapi.Schema(type=openapi.TYPE_STRING, description='User password'),
-            }
-        ),
-        responses={
-            200: openapi.Response(
-                'Token pair obtained',
-                openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        'access': openapi.Schema(type=openapi.TYPE_STRING),
-                        'refresh': openapi.Schema(type=openapi.TYPE_STRING),
-                    }
-                )
-            ),
-            401: openapi.Response('Invalid credentials'),
-        }
-    )
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
-
-class CustomTokenRefreshView(TokenRefreshView):
-    @swagger_auto_schema(
-        operation_description="Refresh access token using refresh token",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            required=['refresh'],
-            properties={
-                'refresh': openapi.Schema(type=openapi.TYPE_STRING, description='Refresh token'),
-            }
-        ),
-        responses={
-            200: openapi.Response(
-                'New access token',
-                openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        'access': openapi.Schema(type=openapi.TYPE_STRING),
-                    }
-                )
-            ),
-            401: openapi.Response('Invalid refresh token'),
-        }
-    )
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
     
 # api/views.py - Add this view
 from rest_framework.decorators import api_view
@@ -250,3 +190,10 @@ def health_check(request):
         },
         "version": "1.0.0"
     })
+
+# views.py
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
