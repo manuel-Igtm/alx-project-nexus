@@ -13,12 +13,34 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .schema import *
 from datetime import timezone
+from rest_framework import permissions, viewsets
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+
 User = get_user_model()
 
+class UserRegistrationView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                'user': UserSerializer(user).data,
+                'message': 'User created successfully'
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class UserViewSet(ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        # Allow anyone to create a user (register)
+        if self.action == 'create':
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 class ProductViewSet(ModelViewSet):
     queryset =  Product.objects.all()
