@@ -26,7 +26,6 @@ SECRET_KEY = 'django-insecure-hs01#qybaq1k4!yna+_t7zkb=ep8=271s1@w+3^j1w_w)=*pnm
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-import os
 
 # Clear any cached settings
 from django.conf import settings
@@ -54,7 +53,6 @@ LOGGING = {
         'level': 'DEBUG',
     },
 }
-import os
 
 # Render uses PORT environment variable
 PORT = os.environ.get('PORT', '10000')
@@ -136,7 +134,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 import dj_database_url
-import os
+
 
 # Database
 DATABASES = {
@@ -242,7 +240,7 @@ SESSION_CACHE_ALIAS = 'sessions'
 CACHE_TTL = 60 * 15  # 15 minutes default
 
 # For environment variables
-import os
+
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
 
 CACHES = {
@@ -300,29 +298,8 @@ CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 
 
-# # core/settings.py
-# import os
-# from pathlib import Path
-# #import dj_database_url
-
-# BASE_DIR = Path(__file__).resolve().parent.parent
-
-# # Security
-# DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-# SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-# ALLOWED_HOSTS = ['your-app-name.onrender.com', 'localhost', '127.0.0.1']
-
-# # Database - Render provides PostgreSQL
-# DATABASES = {
-#     'default': dj_database_url.config(
-#         default=os.environ.get('DATABASE_URL'),
-#         conn_max_age=600,
-#         conn_health_checks=True,
-#     )
-# }
 
 # Static files
-STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -330,17 +307,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
-# Redis for caching and Celery
-REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': REDIS_URL,
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
+
 
 # Celery configuration
 CELERY_BROKER_URL = REDIS_URL
