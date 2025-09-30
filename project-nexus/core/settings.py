@@ -26,7 +26,14 @@ SECRET_KEY = 'django-insecure-hs01#qybaq1k4!yna+_t7zkb=ep8=271s1@w+3^j1w_w)=*pnm
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+import os
 
+# Clear any cached settings
+from django.conf import settings
+if settings.configured:
+    from django.core.management import execute_from_command_line
+    import sys
+    execute_from_command_line(['manage.py', 'shell', '-c', 'from django.conf import settings; print("CURRENT ALLOWED_HOSTS:", settings.ALLOWED_HOSTS)'])
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
     'https://ecommerce-backend-33uc.onrender.com',
