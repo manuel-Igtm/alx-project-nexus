@@ -31,6 +31,7 @@ class UserRegistrationView(APIView):
                 'message': 'User created successfully'
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class UserViewSet(ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -149,6 +150,8 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    permission_classes = []  # No permissions required
+    authentication_classes = []  # No authentication required
     @swagger_auto_schema(
         operation_description="Obtain JWT token pair (access + refresh)",
         request_body=openapi.Schema(
