@@ -22,7 +22,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
 from django.http import JsonResponse
-
+from api.views import health_check
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -44,6 +44,7 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('swagger.json/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('', schema_view.with_ui('swagger', cache_timeout=0)),  # Root redirects to Swagger
+    path('health/', health_check, name='health-check'),
 
 ]
 
