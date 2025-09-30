@@ -300,17 +300,17 @@ CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 
 
-# core/settings.py
-import os
-from pathlib import Path
-#import dj_database_url
+# # core/settings.py
+# import os
+# from pathlib import Path
+# #import dj_database_url
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-ALLOWED_HOSTS = ['your-app-name.onrender.com', 'localhost', '127.0.0.1']
+# # Security
+# DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+# SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-here')
+# ALLOWED_HOSTS = ['your-app-name.onrender.com', 'localhost', '127.0.0.1']
 
 # # Database - Render provides PostgreSQL
 # DATABASES = {
