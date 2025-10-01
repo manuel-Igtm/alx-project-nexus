@@ -2,7 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from .serializers import ProductSerializer,CategorySerializer,OrderSerializer,OrderItemSerializer,CartItemSerializer,OrderItem,CartItem,CartSerializer,PaymentSerializer,NotificationSerializer
 from products.models import Product,Category
 from orders.models import   Order,Cart
-from rest_framework import viewsets
+from rest_framework import viewsets,permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from payments.models import Payment
@@ -20,6 +20,12 @@ class ProductViewSet(ModelViewSet):
     queryset =  Product.objects.all()
     serializer_class = ProductSerializer
 
+    def get_permissions(self):
+        # Make list and retrieve actions public
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
+    
     @swagger_auto_schema(
         operation_description="Retrieve a list of all products with optional filtering",
         manual_parameters=[
@@ -64,9 +70,52 @@ class CategoryViewSet(ModelViewSet):
     queryset =  Category.objects.all()
     serializer_class = CategorySerializer
 
+    def get_permissions(self):
+        # Make list and retrieve actions public
+        if self.action in ['list', 'retrieve']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
+
 class OrderViewSet(ModelViewSet):
     queryset =  Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Require auth for all actions
+    
+    def get_queryset(self):
+        # Only return orders for the authenticated user
+        return Order.objects.filter(user=self.request.user)
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            # Check if user is authenticated (should be handled by permission_classes)
+            if not request.user.is_authenticated:
+                return Response(
+                    {"error": "Authentication required"}, 
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+            
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+            
+        except Exception as e:
+            # Log the error but don't expose details in production
+            if settings.DEBUG:
+                return Response(
+                    {"error": str(e)}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            else:
+                return Response(
+                    {"error": "Internal server error"}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
