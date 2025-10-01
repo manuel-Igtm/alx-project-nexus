@@ -4,7 +4,7 @@ from django.urls import path,include
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from .views import health_check
-from users.views import User
+
 router = DefaultRouter()
 
 router.register('products',ProductViewSet)
