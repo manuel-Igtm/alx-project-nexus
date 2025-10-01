@@ -10,6 +10,11 @@ from notifications.models import Notification
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .schema import *
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+import jwt
+from django.conf import settings
 
 class ProductViewSet(ModelViewSet):
     queryset =  Product.objects.all()
@@ -151,3 +156,42 @@ def health_check(request):
         },
         "version": "1.0.0"
     })
+
+@api_view(['POST'])
+def refresh_token(request):
+    refresh_token = request.data.get('refresh_token')
+    
+    if not refresh_token:
+        return Response(
+            {'error': 'Refresh token required'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        payload = jwt.decode(
+            refresh_token, 
+            settings.SECRET_KEY, 
+            algorithms=['HS256']
+        )
+        
+        # Generate new access token
+        new_access_token = jwt.encode(
+            {'user_id': payload['user_id']},
+            settings.SECRET_KEY,
+            algorithm='HS256'
+        )
+        
+        return Response({
+            'access_token': new_access_token
+        })
+        
+    except jwt.ExpiredSignatureError:
+        return Response(
+            {'error': 'Refresh token expired'}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    except jwt.InvalidTokenError:
+        return Response(
+            {'error': 'Invalid refresh token'}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
