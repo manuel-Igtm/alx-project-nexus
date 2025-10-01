@@ -72,7 +72,7 @@ class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
 
     def get_permissions(self):
-        print(f"DEBUG: ProductViewSet.get_permissions() called for action: {self.action}")  
+        print(f"DEBUG: CategoryViewSet.get_permissions() called for action: {self.action}")  
         # Make list and retrieve actions public
         if self.action in ['list', 'retrieve']:
             return [permissions.AllowAny()]
@@ -86,7 +86,7 @@ class OrderViewSet(ModelViewSet):
     def get_queryset(self):
         print(f"DEBUG: ProductViewSet.get_permissions() called for action: {self.action}")  # ← ADD THIS
         # Only return orders for the authenticated user
-        return Order.objects.filter(user=self.request.user)
+        return Order.objects.filter(created_by=self.request.user)
     
     def list(self, request, *args, **kwargs):
         try:
@@ -119,9 +119,6 @@ class OrderViewSet(ModelViewSet):
                     {"error": "Internal server error"}, 
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-
-    def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
