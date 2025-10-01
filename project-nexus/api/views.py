@@ -21,6 +21,7 @@ class ProductViewSet(ModelViewSet):
     serializer_class = ProductSerializer
 
     def get_permissions(self):
+        print(f"DEBUG: ProductViewSet.get_permissions() called for action: {self.action}") 
         # Make list and retrieve actions public
         if self.action in ['list', 'retrieve']:
             return [permissions.AllowAny()]
@@ -71,6 +72,7 @@ class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
 
     def get_permissions(self):
+        print(f"DEBUG: ProductViewSet.get_permissions() called for action: {self.action}")  
         # Make list and retrieve actions public
         if self.action in ['list', 'retrieve']:
             return [permissions.AllowAny()]
@@ -82,6 +84,7 @@ class OrderViewSet(ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]  # Require auth for all actions
     
     def get_queryset(self):
+        print(f"DEBUG: ProductViewSet.get_permissions() called for action: {self.action}")  # ← ADD THIS
         # Only return orders for the authenticated user
         return Order.objects.filter(user=self.request.user)
     
