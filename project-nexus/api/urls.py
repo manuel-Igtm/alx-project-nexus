@@ -1,12 +1,12 @@
 from rest_framework.routers import DefaultRouter
-from .views import (UserViewSet,ProductViewSet,  CategoryViewSet,OrderViewSet,CartViewSet,OrderItemViewSet,CartItemViewSet,PaymentViewSet,NotificationViewSet)
+from .views import (ProductViewSet,  CategoryViewSet,OrderViewSet,CartViewSet,OrderItemViewSet,CartItemViewSet,PaymentViewSet,NotificationViewSet)
 from django.urls import path,include
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from .views import health_check
+from users.views import User
 router = DefaultRouter()
 
-router.register('users',UserViewSet)
 router.register('products',ProductViewSet)
 router.register('categories',CategoryViewSet)
 router.register('orders',OrderViewSet)
