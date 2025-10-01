@@ -6,7 +6,11 @@ from django.core.cache import cache
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from core.cache_utils import cache_result, CacheManager
-
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+import jwt
+from django.conf import settings
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
@@ -101,3 +105,42 @@ def category_list(request):
 
     return JsonResponse({"categories": categories})
 
+
+@api_view(['POST'])
+def refresh_token(request):
+    refresh_token = request.data.get('refresh_token')
+    
+    if not refresh_token:
+        return Response(
+            {'error': 'Refresh token required'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        payload = jwt.decode(
+            refresh_token, 
+            settings.SECRET_KEY, 
+            algorithms=['HS256']
+        )
+        
+        # Generate new access token
+        new_access_token = jwt.encode(
+            {'user_id': payload['user_id']},
+            settings.SECRET_KEY,
+            algorithm='HS256'
+        )
+        
+        return Response({
+            'access_token': new_access_token
+        })
+        
+    except jwt.ExpiredSignatureError:
+        return Response(
+            {'error': 'Refresh token expired'}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    except jwt.InvalidTokenError:
+        return Response(
+            {'error': 'Invalid refresh token'}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
