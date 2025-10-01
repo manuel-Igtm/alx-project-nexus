@@ -87,29 +87,3 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = "__all__"
 
-# serializers.py
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth import authenticate
-
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        # Use email instead of username
-        email = attrs.get('email')
-        password = attrs.get('password')
-        
-        user = authenticate(request=self.context.get('request'), 
-                          email=email, password=password)
-        
-        if not user:
-            raise serializers.ValidationError('No active account found with the given credentials')
-        
-        data = super().validate(attrs)
-        return data
-
-# In your serializers.py section - REPLACE the current CustomTokenObtainPairSerializer
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    username_field = 'email'  # This tells JWT to use email as username
-    
-    def validate(self, attrs):
-        # The parent class will now automatically use 'email' instead of 'username'
-        return super().validate(attrs)

@@ -1,10 +1,8 @@
-from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
-from django.contrib.auth import get_user_model
-from .serializers import UserSerializer,ProductSerializer,CategorySerializer,OrderSerializer,OrderItemSerializer,CartItemSerializer,OrderItem,CartItem,CartSerializer,PaymentSerializer,NotificationSerializer
+from rest_framework.viewsets import ModelViewSet
+from .serializers import ProductSerializer,CategorySerializer,OrderSerializer,OrderItemSerializer,CartItemSerializer,OrderItem,CartItem,CartSerializer,PaymentSerializer,NotificationSerializer
 from products.models import Product,Category
 from orders.models import   Order,Cart
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from payments.models import Payment
@@ -12,36 +10,6 @@ from notifications.models import Notification
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .schema import *
-from datetime import timezone
-from rest_framework import permissions, viewsets
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-
-User = get_user_model()
-
-class UserRegistrationView(APIView):
-    permission_classes = [AllowAny]
-    
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            return Response({
-                'user': UserSerializer(user).data,
-                'message': 'User created successfully'
-            }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-class UserViewSet(ReadOnlyModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    def get_permissions(self):
-        # Allow anyone to create a user (register)
-        if self.action == 'create':
-            permission_classes = [permissions.AllowAny]
-        else:
-            permission_classes = [permissions.IsAuthenticated]
-        return [permission() for permission in permission_classes]
 
 class ProductViewSet(ModelViewSet):
     queryset =  Product.objects.all()
@@ -114,7 +82,7 @@ class OrderViewSet(ModelViewSet):
         return super().create(request, *args, **kwargs)
 
 
-# ---------------- CART ----------------
+# -- CART --
 class CartViewSet(ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
@@ -125,13 +93,15 @@ class CartItemViewSet(ModelViewSet):
     serializer_class = CartItemSerializer
 
 
-# ---------------- ORDER ITEM ----------------
+# -- ORDER ITEM --
 class OrderItemViewSet(ModelViewSet):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
 
 
 class PaymentViewSet(viewsets.ViewSet):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
     @action(detail=False, methods=['post'])
     def create_payment_intent(self, request):
         # Basic payment intent creation
@@ -141,16 +111,7 @@ class PaymentViewSet(viewsets.ViewSet):
 
 class NotificationViewSet(ModelViewSet):
     queryset = Notification.objects.all().order_by("-created_at")
-    serializer_class = NotificationSerializer
-
-
-    
-# api/views.py - Add this view
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from django.db import connections
-from django.db.utils import OperationalError
-
+    serializer_class = NotificationSerializer 
 
 # api/views.py
 from rest_framework.decorators import api_view
@@ -190,10 +151,3 @@ def health_check(request):
         },
         "version": "1.0.0"
     })
-
-# views.py
-from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomTokenObtainPairSerializer
-
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
