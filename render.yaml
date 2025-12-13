@@ -6,11 +6,11 @@ services:
     env: python
     plan: free
     buildCommand: |
-      pip install -r requirements.txt
-      python manage.py collectstatic --noinput
+      pip install -r project-nexus/requirements.txt
+      cd project-nexus && python manage.py collectstatic --noinput
     startCommand: |
-      python manage.py migrate --noinput
-      gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
+      cd project-nexus && python manage.py migrate --noinput
+      cd project-nexus && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -33,8 +33,8 @@ services:
     name: celery-worker
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: celery -A core worker --loglevel=info
+    buildCommand: pip install -r project-nexus/requirements.txt
+    startCommand: cd project-nexus && celery -A core worker --loglevel=info
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -51,8 +51,8 @@ services:
     name: celery-beat
     env: python
     plan: free
-    buildCommand: cd project-nexus && python manage.py collectstatic --noinput
-    startCommand: cd project-nexus && gunicorn project-nexus.wsgi:application
+    buildCommand: pip install -r project-nexus/requirements.txt
+    startCommand: cd project-nexus && celery -A core beat --loglevel=info
     envVars:
       - key: DATABASE_URL
         fromDatabase:
