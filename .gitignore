@@ -26,9 +26,13 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Static files
+# Static files (collected by `collectstatic`)
+# Root-level (if STATIC_ROOT points here)
 /staticfiles/
 /mediafiles/
+# Project-level (current `STATIC_ROOT`=`project-nexus/staticfiles`)
+project-nexus/staticfiles/
+project-nexus/mediafiles/
 
 # Database (PostgreSQL - development)
 *.pid
