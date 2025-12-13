@@ -180,6 +180,9 @@ jobs:
     needs: [test, security]
     # Build on push to main or develop
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
     
     steps:
       - name: Checkout code
@@ -189,8 +192,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
       
       - name: Set image name
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           if [ -n "$DOCKER_USERNAME" ]; then
             echo "IMAGE_NAME=$DOCKER_USERNAME/project-nexus" >> $GITHUB_ENV
@@ -199,11 +200,11 @@ jobs:
           fi
       
       - name: Login to Docker Hub
-        if: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
+        if: ${{ env.DOCKER_USERNAME != '' && env.DOCKER_PASSWORD != '' }}
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
       
       - name: Extract metadata
         id: meta
@@ -216,7 +217,7 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
       
       - name: Build and push
-        if: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
+        if: ${{ env.DOCKER_USERNAME != '' && env.DOCKER_PASSWORD != '' }}
         uses: docker/build-push-action@v5
         with:
           context: ./project-nexus
@@ -238,16 +239,16 @@ jobs:
     environment:
       name: staging
       url: https://staging.projectnexus.com
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_STAGING_SERVICE_ID }}
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
       - name: Deploy to Render (Staging)
-        if: ${{ secrets.RENDER_API_KEY != '' && secrets.RENDER_STAGING_SERVICE_ID != '' }}
-        env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_STAGING_SERVICE_ID }}
+        if: ${{ env.RENDER_API_KEY != '' && env.RENDER_SERVICE_ID != '' }}
         run: |
           curl -X POST \
             "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
@@ -265,16 +266,16 @@ jobs:
     environment:
       name: production
       url: https://api.projectnexus.com
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_PRODUCTION_SERVICE_ID }}
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
       - name: Deploy to Render (Production)
-        if: ${{ secrets.RENDER_API_KEY != '' && secrets.RENDER_PRODUCTION_SERVICE_ID != '' }}
-        env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_PRODUCTION_SERVICE_ID }}
+        if: ${{ env.RENDER_API_KEY != '' && env.RENDER_SERVICE_ID != '' }}
         run: |
           curl -X POST \
             "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
