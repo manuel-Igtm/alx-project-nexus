@@ -8,7 +8,6 @@
 
 ![CI/CD](https://github.com/manuel-Igtm/alx-project-nexus/actions/workflows/ci-cd.yml/badge.svg?branch=main)
 ![Security Scanning](https://github.com/manuel-Igtm/alx-project-nexus/actions/workflows/security.yml/badge.svg?branch=main)
-![Coverage](https://codecov.io/gh/manuel-Igtm/alx-project-nexus/branch/main/graph/badge.svg)
 
 A powerful, secure, and scalable e-commerce backend API built with Django REST Framework. Features comprehensive security with IP tracking/blocking, interactive API documentation, and production-ready CI/CD pipelines.
 
