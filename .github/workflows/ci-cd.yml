@@ -106,6 +106,13 @@ jobs:
           pip install -r project-nexus/requirements.txt
           pip install pytest pytest-django pytest-cov coverage
       
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          for i in {1..30}; do
+            pg_isready -h postgres -p 5432 -U ${{ env.POSTGRES_USER }} && break
+            sleep 2
+          done
+      
       - name: Run migrations
         working-directory: project-nexus
         env:
@@ -182,22 +189,21 @@ jobs:
         uses: docker/setup-buildx-action@v3
       
       - name: Set image name
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          if [ -n "${{ secrets.DOCKER_USERNAME }}" ]; then
-            echo "IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/project-nexus" >> $GITHUB_ENV
+          if [ -n "$DOCKER_USERNAME" ]; then
+            echo "IMAGE_NAME=$DOCKER_USERNAME/project-nexus" >> $GITHUB_ENV
           else
             echo "IMAGE_NAME=project-nexus" >> $GITHUB_ENV
           fi
       
       - name: Login to Docker Hub
+        if: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
         uses: docker/login-action@v3
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        if: ${{ env.DOCKER_USERNAME != '' && env.DOCKER_PASSWORD != '' }}
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       
       - name: Extract metadata
         id: meta
@@ -210,14 +216,12 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
       
       - name: Build and push
+        if: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
         uses: docker/build-push-action@v5
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         with:
           context: ./project-nexus
           file: ./project-nexus/Dockerfile
-          push: ${{ env.DOCKER_USERNAME != '' && env.DOCKER_PASSWORD != '' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -240,10 +244,10 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Deploy to Render (Staging)
+        if: ${{ secrets.RENDER_API_KEY != '' && secrets.RENDER_STAGING_SERVICE_ID != '' }}
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RENDER_SERVICE_ID: ${{ secrets.RENDER_STAGING_SERVICE_ID }}
-        if: ${{ env.RENDER_API_KEY != '' && env.RENDER_SERVICE_ID != '' }}
         run: |
           curl -X POST \
             "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
@@ -267,10 +271,10 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Deploy to Render (Production)
+        if: ${{ secrets.RENDER_API_KEY != '' && secrets.RENDER_PRODUCTION_SERVICE_ID != '' }}
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RENDER_SERVICE_ID: ${{ secrets.RENDER_PRODUCTION_SERVICE_ID }}
-        if: ${{ env.RENDER_API_KEY != '' && env.RENDER_SERVICE_ID != '' }}
         run: |
           curl -X POST \
             "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
