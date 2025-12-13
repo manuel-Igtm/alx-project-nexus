@@ -64,6 +64,11 @@ jobs:
     name: 🧪 Run Tests
     runs-on: ubuntu-latest
     needs: lint
+    env:
+      DATABASE_URL: postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@postgres:5432/${{ env.POSTGRES_DB }}
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY: test-secret-key-for-ci
+      DEBUG: 'True'
     
     services:
       postgres:
