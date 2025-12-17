@@ -20,10 +20,12 @@ class OrderModelTest(TestCase):
     
     def test_order_creation(self):
         order = Order.objects.create(
-            user=self.user,
-            total_amount=99.99
+            created_by=self.user,
+            product=self.product,
+            total=99.99
         )
-        self.assertEqual(str(order), f"Order {order.id}")
+        self.assertEqual(order.created_by, self.user)
+        self.assertEqual(order.total, 99.99)
 
 # api/tests/test_views.py
 from rest_framework.test import APITestCase
