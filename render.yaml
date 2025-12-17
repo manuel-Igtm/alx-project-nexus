@@ -8,9 +8,7 @@ services:
     buildCommand: |
       pip install -r project-nexus/requirements.txt
       cd project-nexus && python manage.py collectstatic --noinput
-    startCommand: |
-      cd project-nexus && python manage.py migrate --noinput
-      cd project-nexus && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: cd project-nexus && python manage.py migrate --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
