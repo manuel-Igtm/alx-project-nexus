@@ -114,29 +114,19 @@ jobs:
       - name: Wait for PostgreSQL to be ready
         run: |
           for i in {1..60}; do
-            pg_isready -h postgres -p 5432 -U ${{ env.POSTGRES_USER }} && break
+            pg_isready -h postgres -p 5432 -U postgres && break
             echo "Postgres is unavailable - sleeping ($i)"
             sleep 2
           done
-          pg_isready -h postgres -p 5432 -U ${{ env.POSTGRES_USER }}
+          pg_isready -h postgres -p 5432 -U postgres
       
       - name: Run migrations
         working-directory: project-nexus
-        env:
-          DATABASE_URL: postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@postgres:5432/${{ env.POSTGRES_DB }}
-          REDIS_URL: redis://redis:6379
-          SECRET_KEY: test-secret-key-for-ci
-          DEBUG: 'True'
         run: |
           python manage.py migrate --noinput
       
       - name: Run tests with coverage
         working-directory: project-nexus
-        env:
-          DATABASE_URL: postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@postgres:5432/${{ env.POSTGRES_DB }}
-          REDIS_URL: redis://redis:6379
-          SECRET_KEY: test-secret-key-for-ci
-          DEBUG: 'True'
         run: |
           python -m pytest --cov=. --cov-report=xml --cov-report=html -v
 
