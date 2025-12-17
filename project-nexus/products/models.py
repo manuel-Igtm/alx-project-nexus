@@ -21,9 +21,9 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True)
-    description = models.TextField(max_length=100)
+    description = models.TextField(max_length=1000)
     price = models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
     category = models.ForeignKey(Category,on_delete=models.CASCADE, related_name='products') #category.products
     created_by = models.ForeignKey(User,on_delete=models.CASCADE, related_name='products',default=None , null=True) #users.products
